@@ -42,68 +42,36 @@ colnames(coefBeta) <- c("Beta", "std.error", "lim.inf", "lim.sup",
 coefBeta
 
 
-resid.FH.std <- (yd - FH$eblup)/sqrt(sigmaed2)
-hist(resid.FH.std, breaks = 15, freq = F, main = "Histogram", xlab = "sresiduals", cex.main = 1.5, cex.lab = 1.5, cex.axis = 1.5)
-lines(density(resid.FH.std), col = "red")
+resid.FH.std <- (yd - FH$eblup)/sqrt(sigmaed2) ## Standardized residuals (sresiduals)
 
-boxplot(resid.FH.std, cex.lab = 1.6, cex.axis = 1.8, axes = F)
-title(main=expression(paste("Boxplot of sresiduals (FH)")), cex.main=2)
-axis(2, col = "gray70", cex.axis=1.5)
-
-
-shapiro.test(resid.FH.std)
-nortest::lillie.test(resid.FH.std)
-
-
-library(ggpubr)
-ggqqplot(data = data.frame(resid.FH.std), x = "resid.FH.std",
-         title = "Normal Q-Q Plot FH sresiduals",
-         color= c("#0073C2FF"),
-         ylab = "sresiduals",
-         ggtheme = theme_classic()) 
-
-qqnorm(resid.FH.std, axes = F, cex.main=2, cex.lab = 1.6, main = "")
-qqline(resid.FH.std, col = "red")
-title(main=expression(paste("Normal Q-Q Plot FH sresiduals")), cex.main=2)
-axis(side = 1, col = "grey", cex.axis = 1.6)
-axis(side = 2, col = "grey", cex.axis = 1.6)
-
-
-
-
-### Por aqui
-
-
-
-
-mseFH <- mseFH(Y1 ~ EDU5 + R5000 + NAC2, varY1, method = "REML", MAXITER = 100, PRECISION = 0.0001, 
+mseFH <- mseFH(yd ~ X, sigmaed2, method = "REML", MAXITER = 100, PRECISION = 0.0001, 
                B = 0, data = data)
 
 loglike.FH <- mseFH$est$fit$goodness[1]
-AIC.FH <- -2*loglike.FH + 2*(4+1)
-rmseFH.analytic <- sqrt(mseFH$mse)
+AIC.FH <- -2*loglike.FH + 2*(2+1) ## 1 explanatory variable + Intercept + variance random effect
+
 
 
 ###### HFH-BC(0) model 
 
 source("REMLHFH.BoxCox.R")
 
-X <- model.matrix(Y1 ~ EDU5 + R5000 + NAC2, data)
-W <- model.matrix(Y1 ~ EDU3, data) 
+X <- model.matrix(yd ~ X, data)
+W <- model.matrix(yd ~ W, data) 
 D <- nrow(data)
 eta <- c(eta.FH,0)
 
-model.0 <- REML.HFH.BoxCox(X[,-1], W[,-1], yd, D, sigmaed2, eta, lambda = 0, MAXITER = 100, precision = 10^-4)
+model.HFH <- REML.HFH.BoxCox(X[,-1], W[,-1], yd, D, sigmaed2, eta, lambda = 0, MAXITER = 100, precision = 10^-4)
 
-n.params.0 <- length(model.0[[1]])
+n.params.HFH <- length(model.HFH[[1]])
 
-beta.fitted <- model.0[[1]][1:4]
-eta.fitted <- model.0[[1]][5:6]
-eblups.0 <- model.0[[2]]
-solve.H.eta <- -model.0[[4]]
+beta.fitted <- model.HFH[[1]][1:2]
+eta.fitted <- model.HFH[[1]][3:4]
+eblups.HFH <- model.HFH[[2]]
+solve.H.eta <- -model.HFH[[4]]
 
-loglike.HFH <- model.0[[6]]
-AIC.HFH <- -2*loglike.HFH + 2*n.params.0
+loglike.HFH <- model.HFH[[6]]
+AIC.HFH <- -2*loglike.HFH + 2*n.params.HFH
 
 loglike.HFH > loglike.FH
 AIC.HFH < AIC.FH
@@ -137,45 +105,27 @@ colnames(coefBeta) <- c("Beta", "std.error", "t.statistics", "lim.inf", "lim.sup
 coefBeta
 
 
-xtable(coefEta,digits = 4)
-xtable(coefBeta,digits = 4)
-
 ### Random effects
 
 ud <- sigmaud2.hat/(sigmaud2.hat+sigmaed2)*(yd-X%*%beta.fitted)
 
-###### Model validation
+
+resid.HFH.std <- (yd - eblups.HFH)/sqrt(sigmaed2) ## Standardized residuals (sresiduals) HFH model
 
 
-resid.std.0 <- (yd-eblups.0)/sqrt(sigmaed2)
-hist(resid.std.0, breaks = 15, freq = F, main = "Histogram", xlab = "sresiduals", cex.main = 1.8, cex.lab = 1.6, cex.axis = 1.8)
-lines(density(resid.std.0), col = "red")
+###### QQ-plots
 
-boxplot(resid.std.0, cex.lab = 1.6, cex.axis = 1.8, axes = F)
-title(main=expression(paste("Boxplot of sresiduals (HFH)")), cex.main=2)
-axis(2, at = seq(-2,2,by = 1), col = "gray70", cex.axis=1.5)
+par(mfrow = c(1,2))
 
-# shapiro.test(resid.st)
-# nortest::lillie.test(resid.st)
-
-
-library(ggpubr)
-ggqqplot(data = data.frame(resid.std.0), x = "resid.std.0",
-         title = "Normal Q-Q Plot",
-         color= c("#0073C2FF"),
-         ylab = "sresiduals",
-         ggtheme = theme_classic()
-) + theme(text = element_text(size=18), plot.title = element_text(hjust = 0.5)) 
-
-
-
-
-
-qqnorm(resid.std.0, axes = F, cex.main=2, cex.lab = 1.6, main = "")
-qqline(resid.std.0, col = "red")
+qqnorm(resid.HFH.std, axes = F, cex.main=2, cex.lab = 1.6, main = "")
+qqline(resid.HFH.std, col = "red")
 title(main=expression(paste("Normal Q-Q Plot HFH-BC(0) sresiduals ")), cex.main=2)
 axis(side = 1, col = "grey", cex.axis = 1.6)
 axis(side = 2, col = "grey", cex.axis = 1.6)
 
-shapiro.test(resid.std.0)
-shapiro.test(resid.FH.std)
+qqnorm(resid.FH.std, axes = F, cex.main=2, cex.lab = 1.6, main = "")
+qqline(resid.FH.std, col = "red")
+title(main=expression(paste("Normal Q-Q Plot FH sresiduals")), cex.main=2)
+axis(side = 1, col = "grey", cex.axis = 1.6)
+axis(side = 2, col = "grey", cex.axis = 1.6)
+
