@@ -24,6 +24,3 @@ This repository includes:
 
 ---
 
-
-
-"Small area estimation of poverty proportions under heteroscedastic Fay-Herriot models"
