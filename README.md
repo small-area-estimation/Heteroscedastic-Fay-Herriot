@@ -7,6 +7,7 @@ This repository contains R codes for the paper:
 by Esteban Cabello, María Dolores Esteban, Domingo Morales, and Agustín Pérez.
 
 *Journal of Applied Statistics*, 1--23
+
 [https://doi.org/10.1080/02664763.2025.2568679](10.1080/02664763.2025.2568679)
 ---
 
