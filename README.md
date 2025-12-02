@@ -2,13 +2,7 @@
 
 This repository contains R codes for the paper:
 
-**"Small area estimation of poverty proportions under heteroscedastic Fay-Herriot models"**
-
-by Esteban Cabello, María Dolores Esteban, Domingo Morales, and Agustín Pérez.
-
-*Journal of Applied Statistics*, 1--23
-
-[https://doi.org/10.1080/02664763.2025.2568679](10.1080/02664763.2025.2568679)
+> **Cabello, E., Esteban, M. D., Morales, D., & Pérez, A. (2025). Small area estimation of poverty proportions under heteroscedastic Fay-Herriot models. *Journal of Applied Statistics*, 1–23. [https://doi.org/10.1080/02664763.2025.2568679](https://doi.org/10.1080/02664763.2025.2568679)**
 ---
 
 ## 📄 Overview
