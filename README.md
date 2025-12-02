@@ -6,13 +6,13 @@ This repository contains R codes for the paper:
 
 by Esteban Cabello, María Dolores Esteban, Domingo Morales, and Agustín Pérez.
 
-{\it Journal of Applied Statistics, 1--23}
-doi: 10.1080/02664763.2025.2568679
+*Journal of Applied Statistics*, 1--23
+[https://doi.org/10.1080/02664763.2025.2568679](10.1080/02664763.2025.2568679)
 ---
 
 ## 📄 Overview
 
-The HFH model is a modification of the standard Fay-Herriot model. Unlike the standard Fay-Herriot model, which assumes homoscedasticity for random effects, the HFH model explicitly models the random effect variance as a function of auxiliary variables using Box-Cox transformations. 
+The HFH model is a modification of the standard Fay-Herriot model. Unlike the standard Fay-Herriot model, which assumes homoscedasticity for random effects, the HFH model models the random effect variance as a function of auxiliary variables using Box-Cox transformations. 
 This approach allows for greater flexibility in capturing unobserved heterogeneity across domains.
 
 This repository includes:
