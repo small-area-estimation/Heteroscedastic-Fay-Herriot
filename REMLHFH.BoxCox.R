@@ -1,17 +1,13 @@
 ###############################################################################
 ###############################################################################
 ###
-###                          Algoritmo REML HFHmodel                          
+###                          REML HFH algorithm                        
 ###                                                                           
-###                              Mayo 2025                                
+###                              May 2025                                
 ###
 
 
-### Autor: Lola Esteban - Agustin Perez - Esteban Cabello
-
-
-### Editado por:
-### con fecha: 
+### Authors: Lola Esteban - Agustin Perez - Esteban Cabello
 
 
 
@@ -28,14 +24,14 @@ REML.HFH.BoxCox <- function(X, W, yd, D, sigmaed2, eta, lambda, MAXITER = 100, p
   eta.ini <- rep(0,q)
   eta.ini[1:length(eta)] <- eta
   
-  eta.gorro.prev <- matrix(eta.ini, nrow=q)
-  #eta.gorro.prev <- matrix(c(0, 0), nrow=q)
+  eta.hat.prev <- matrix(eta.ini, nrow=q)
+  #eta.hat.prev <- matrix(c(0, 0), nrow=q)
   if(lambda == 0){
     for(ITER in 1:MAXITER){
       
-      sigmaud2 <- as.vector(exp(W%*%eta.gorro.prev))
+      sigmaud2 <- as.vector(exp(W%*%eta.hat.prev))
       
-      # Creación matriz de varianzas (diagonal)
+      # Creation of variance matrix of the target variable (diagonal)
       V <- diag(sigmaud2 + sigmaed2)
       # cat(det(V),"\n")
       V.inv <- solve(V)
@@ -52,7 +48,7 @@ REML.HFH.BoxCox <- function(X, W, yd, D, sigmaed2, eta, lambda, MAXITER = 100, p
         Ki[[i.q]] <- -V.inv%*%Vi[[i.q]]%*%K + K%*%Vi[[i.q]]%*%K - K%*%Vi[[i.q]]%*%V.inv
       }
       
-      # Se repite el bucle i.q debido a que se necesitan todos los Vi calculados para usarlos en los Sij
+      # The i.q loop is repeated because all the calculated Vi values are needed for use in the Sij values.
       Vij <- S1ij <- S2ij <- S3ij <- list()
       P1ij <- P2ij <- P3ij <- list()
       Hij <- list()
@@ -79,28 +75,28 @@ REML.HFH.BoxCox <- function(X, W, yd, D, sigmaed2, eta, lambda, MAXITER = 100, p
       
       dif <- -Hij.inv%*%matrix(unlist(Si), ncol=1)
       
-      eta.gorro <- eta.gorro.prev + dif
-      eta.gorro.prev <- eta.gorro
+      eta.hat <- eta.hat.prev + dif
+      eta.hat.prev <- eta.hat
       
-      # Criterio de parada
+      # Stop criterion
       if(identical(as.numeric(abs(dif)<precision),rep(1,q))){
-        sigmaud2.gorro <- as.vector(exp(W%*%eta.gorro))
+        sigmaud2.hat <- as.vector(exp(W%*%eta.hat))
         
-        V.gorro <- diag(as.vector(sigmaud2.gorro + sigmaed2))
-        V.gorro.inv <- solve(V.gorro)
-        Q.gorro <- solve(tX%*%V.gorro.inv%*%X)
-        
-        
-        beta.gorro <- Q.gorro%*%tX%*%V.gorro.inv%*%yd
-        
-        tau.gorro <- matrix(c(as.vector(beta.gorro), as.vector(eta.gorro)), ncol=1)
+        V.hat <- diag(as.vector(sigmaud2.hat + sigmaed2))
+        V.hat.inv <- solve(V.hat)
+        Q.hat <- solve(tX%*%V.hat.inv%*%X)
         
         
-        mud.gorro <- (as.vector(sigmaud2.gorro)/(as.vector(sigmaud2.gorro) + sigmaed2))*yd + (sigmaed2/(as.vector(sigmaud2.gorro) + sigmaed2))*X%*%beta.gorro
+        beta.hat <- Q.hat%*%tX%*%V.hat.inv%*%yd
+        
+        tau.hat <- matrix(c(as.vector(beta.hat), as.vector(eta.hat)), ncol=1)
+        
+        
+        mud.hat <- (as.vector(sigmaud2.hat)/(as.vector(sigmaud2.hat) + sigmaed2))*yd + (sigmaed2/(as.vector(sigmaud2.hat) + sigmaed2))*X%*%beta.hat
         
         det.tXX <- log(det(tX%*%X))
-        det.V <- log(det(V.gorro))
-        det.Q <- log(det(Q.gorro))
+        det.V <- log(det(V.hat))
+        det.Q <- log(det(Q.hat))
         det.tyPy <- log(det(t(yd)%*%P%*%yd))
         
         log.like <- -0.5*(D-p)*log(2*pi) + 0.5*det.tXX - 0.5*det.V - 0.5*det.Q - 0.5*det.tyPy
@@ -116,9 +112,9 @@ REML.HFH.BoxCox <- function(X, W, yd, D, sigmaed2, eta, lambda, MAXITER = 100, p
   else{
     for(ITER in 1:MAXITER){
       
-      sigmaud2 <- as.vector((lambda*W%*%eta.gorro.prev+1)^(1/lambda))
+      sigmaud2 <- as.vector((lambda*W%*%eta.hat.prev+1)^(1/lambda))
       
-      # Creación matriz de varianzas (diagonal)
+      # Creation of variance matrix of the target variable (diagonal)
       V <- diag(sigmaud2 + sigmaed2)
       # cat(det(V),"\n")
       V.inv <- solve(V)
@@ -135,7 +131,7 @@ REML.HFH.BoxCox <- function(X, W, yd, D, sigmaed2, eta, lambda, MAXITER = 100, p
         Ki[[i.q]] <- -V.inv%*%Vi[[i.q]]%*%K + K%*%Vi[[i.q]]%*%K - K%*%Vi[[i.q]]%*%V.inv
       }
       
-      # Se repite el bucle i.q debido a que se necesitan todos los Vi calculados para usarlos en los Sij
+      # The i.q loop is repeated because all the calculated Vi values are needed for use in the Sij values.
       Vij <- S1ij <- S2ij <- S3ij <- list()
       P1ij <- P2ij <- P3ij <- list()
       Hij <- list()
@@ -162,35 +158,35 @@ REML.HFH.BoxCox <- function(X, W, yd, D, sigmaed2, eta, lambda, MAXITER = 100, p
       
       dif <- -Hij.inv%*%matrix(unlist(Si), ncol=1)
       
-      eta.gorro <- eta.gorro.prev + dif
-      eta.gorro.prev <- eta.gorro
-    
-      # Criterio de parada
+      eta.hat <- eta.hat.prev + dif
+      eta.hat.prev <- eta.hat
+      
+      # Stop criterion
       if(identical(as.numeric(abs(dif)<precision),rep(1,q))){
-        sigmaud2.gorro <- as.vector((lambda*W%*%eta.gorro+1)^(1/lambda))
+        sigmaud2.hat <- as.vector((lambda*W%*%eta.hat+1)^(1/lambda))
         
-        V.gorro <- diag(as.vector(sigmaud2.gorro + sigmaed2))
-        V.gorro.inv <- solve(V.gorro)
-        Q.gorro <- solve(tX%*%V.gorro.inv%*%X)
-        
-        
-        beta.gorro <- Q.gorro%*%tX%*%V.gorro.inv%*%yd
-        
-        tau.gorro <- matrix(c(as.vector(beta.gorro), as.vector(eta.gorro)), ncol=1)
+        V.hat <- diag(as.vector(sigmaud2.hat + sigmaed2))
+        V.hat.inv <- solve(V.hat)
+        Q.hat <- solve(tX%*%V.hat.inv%*%X)
         
         
-        mud.gorro <- (as.vector(sigmaud2.gorro)/(as.vector(sigmaud2.gorro) + sigmaed2))*yd + (sigmaed2/(as.vector(sigmaud2.gorro) + sigmaed2))*X%*%beta.gorro
+        beta.hat <- Q.hat%*%tX%*%V.hat.inv%*%yd
+        
+        tau.hat <- matrix(c(as.vector(beta.hat), as.vector(eta.hat)), ncol=1)
+        
+        
+        mud.hat <- (as.vector(sigmaud2.hat)/(as.vector(sigmaud2.hat) + sigmaed2))*yd + (sigmaed2/(as.vector(sigmaud2.hat) + sigmaed2))*X%*%beta.hat
         
         det.tXX <- log(det(tX%*%X))
-        det.V <- log(det(V.gorro))
-        det.Q <- log(det(Q.gorro))
+        det.V <- log(det(V.hat))
+        det.Q <- log(det(Q.hat))
         det.tyPy <- log(det(t(yd)%*%P%*%yd))
         
         log.like <- -0.5*(D-p)*log(2*pi) + 0.5*det.tXX - 0.5*det.V - 0.5*det.Q - 0.5*det.tyPy
         
         break
       }
-    
+      
       
       
     } 
@@ -198,7 +194,8 @@ REML.HFH.BoxCox <- function(X, W, yd, D, sigmaed2, eta, lambda, MAXITER = 100, p
   } 
   
   
-  return(list(param = tau.gorro, eblups = mud.gorro, ITER = ITER, Hij.inv = Hij.inv, lambda = lambda, loglike = log.like))
+  return(list(param = tau.hat, eblups = mud.hat, ITER = ITER, 
+              Hij.inv = Hij.inv, lambda = lambda, loglike = log.like))
   
   
 }
